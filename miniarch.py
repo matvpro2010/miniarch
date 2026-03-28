@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-MiniArch - Кроссплатформенная операционная среда на Python
-Вдохновлена философией Arch Linux и свободного ПО
+FreeMind - Кроссплатформенная операционная среда на Python
+Вдохновлена философией GNU
 """
 
 import os
@@ -35,8 +35,8 @@ class MiniArch:
     """Главный класс системы"""
     
     def __init__(self):
-        self.version = "0.3.0"
-        self.name = "MiniArch"
+        self.version = "0.3.1"
+        self.name = "FreeMind"
         self.commands = {}
         self.current_dir = os.path.expanduser("~")
         self.running = True
@@ -95,8 +95,8 @@ class MiniArch:
             # Приложения
             'echo': self.cmd_echo,
             'calc': self.cmd_calc,
+            'calcfig': self.cmd_calcfig,
             'weather': self.cmd_weather,
-            'gui': self.cmd_gui,
             
             # Модули
             'modules': self.cmd_modules,
@@ -225,12 +225,12 @@ class MiniArch:
         print("=" * 60)
         
         categories = {
-            '📁 Файлы': ['ls', 'pwd', 'cd', 'mkdir', 'rm', 'cat', 'touch', 'edit'],
-            '🖥️ Система': ['sysinfo', 'whoami', 'date', 'ps', 'neofetch'],
-            '⚙️ Управление': ['clear', 'exit', 'reboot', 'shutdown'],
-            '🎮 Приложения': ['calc', 'weather', 'gui', 'echo'],
-            '🧩 Модули': ['modules', 'module'],
-            '🔧 Платформа': ['windows', 'linux'],
+            ' Файлы': ['ls', 'pwd', 'cd', 'mkdir', 'rm', 'cat', 'touch', 'edit'],
+            ' Система': ['sysinfo', 'whoami', 'date', 'ps', 'neofetch'],
+            ' Управление': ['clear', 'exit', 'reboot', 'shutdown'],
+            ' Приложения': ['calc', 'calcfig', 'weather', 'gui', 'echo'],
+            ' Модули': ['modules', 'module'],
+            ' Платформа': ['windows', 'linux'],
         }
         
         for category, cmd_list in categories.items():
@@ -481,6 +481,80 @@ class MiniArch:
                 break
             except Exception as e:
                 print(f"Ошибка: {e}")
+
+    def cmd_calcfig(self, args):
+        """Калькулятор параметров прямоугольника"""
+        
+        # Функция для безопасного получения числа из аргумента
+        def to_int(value):
+            if value is None:
+                return None
+            if isinstance(value, (int, float)):
+                return int(value)
+            try:
+                return int(str(value))
+            except (ValueError, TypeError):
+                try:
+                    return int(value.value)
+                except AttributeError:
+                    pass
+                try:
+                    return int(value.get())
+                except (AttributeError, TypeError, ValueError):
+                    pass
+                return None
+
+        # Пытаемся получить числа из аргументов
+        d_int = None
+        sh_int = None
+        
+        if len(args) >= 2:
+            d_int = to_int(args[0])
+            sh_int = to_int(args[1])
+
+        # Если аргументы не переданы или не удалось преобразовать, запрашиваем ввод
+        if d_int is None or sh_int is None:
+            print("Введите параметры прямоугольника:")
+            while True:
+                try:
+                    d_int = int(input("Длина: "))
+                    sh_int = int(input("Ширина: "))
+                    break
+                except ValueError:
+                    print("Ошибка: введите целое число.")
+
+        d, sh = d_int, sh_int
+
+        # Вычисления
+        pr = (d + sh) * 2
+        pl = d * sh
+
+        # Форматирование таблицы
+        ld = 105
+        print(f"{'ХАРАКТЕРИСТИКИ ПРЯМОУГОЛЬНИКА'.center(ld)}")
+        l = "-" * 105
+        print(l)
+
+        c1 = 20
+        c2 = 15
+        c3 = 35
+        c4 = 30
+
+        h = (f"|{'Длина'.center(c1)}|"
+            f"{'Ширина'.center(c2)}|"
+            f"{'Периметр'.center(c3)}|"
+            f"{'Площадь'.center(c4)}|")
+        print(h)
+        print(l)
+
+        cd = format(d, "20,.0f")
+        csh = format(sh, "15,.0f")
+        cpr = format(pr, "35,.0f")
+        cpl = format(pl, "30,.0f")
+
+        ch = f"|{cd}|{csh}|{cpr}|{cpl}|"
+        print(ch)
+        print(l)
     
     def cmd_weather(self, args):
         """Демо-погода"""
@@ -489,15 +563,6 @@ class MiniArch:
         print(f"Влажность: 65%")
         print(f"Ветер: 3 м/с\n")
     
-    def cmd_gui(self, args):
-        """Текстовый оконный менеджер"""
-        print(f"\n{self.colorize('Текстовый оконный менеджер', 'yellow')}")
-        print("┌─────────────────────────────────┐")
-        print("│  [Терминал]  [Монитор]  [Часы]  │")
-        print("│                                 │")
-        print("│  Нажмите Enter для выхода...    │")
-        print("└─────────────────────────────────┘")
-        input()
     
     # ===== ПЛАТФОРМОЗАВИСИМЫЕ КОМАНДЫ =====
     
